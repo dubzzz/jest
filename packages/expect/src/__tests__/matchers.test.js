@@ -11,6 +11,7 @@ const jestExpect = require('../');
 const Immutable = require('immutable');
 const chalk = require('chalk');
 const chalkEnabled = chalk.enabled;
+const fc = require('fast-check');
 
 beforeAll(() => {
   chalk.enabled = true;
@@ -287,6 +288,17 @@ describe('.toStrictEqual()', () => {
 
   it('does not ignore keys with undefined values deep inside an object', () => {
     expect([{a: [{a: undefined}]}]).not.toStrictEqual([{a: [{}]}]);
+  });
+
+  fit('distinguishes distinct values', () => {
+    // Given a and b values such as a different from b
+    // We expect `expect(a).not.toStrictEqual(b)`
+    fc.assert(
+      fc.property(fc.anything(), fc.anything(), (a, b) => {
+        fc.pre(JSON.stringify(a) !== JSON.stringify(b));
+        expect(a).not.toStrictEqual(b);
+      }),
+    );
   });
 
   it('passes when comparing same type', () => {

@@ -36,6 +36,7 @@
     "eslint-plugin-react": "^7.1.0",
     "eslint-plugin-relay": "~0.0.19",
     "execa": "^1.0.0",
+    "fast-check": "^1.10.1",
     "flow-bin": "^0.93.0",
     "glob": "^7.1.1",
     "graceful-fs": "^4.1.15",
