@@ -224,7 +224,11 @@ const matchers: MatchersObject = {
     return {message, pass};
   },
 
-  toBeInstanceOf(this: MatcherState, received: any, expected: Function) {
+  toBeInstanceOf<T, U extends Partial<T>>(
+    this: MatcherState,
+    received: T,
+    expected: U | {new (...args: any[]): U},
+  ) {
     const matcherName = 'toBeInstanceOf';
     const options: MatcherHintOptions = {
       isNot: this.isNot,

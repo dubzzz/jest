@@ -159,7 +159,9 @@ export interface Matchers<R> {
    * Ensure that an object is an instance of a class.
    * This matcher uses `instanceof` underneath.
    */
-  toBeInstanceOf(expected: Function): R;
+  toBeInstanceOf<U extends Partial<R>>(
+    expected: U | {new (...args: any[]): U},
+  ): R;
   /**
    * For comparing floating point numbers.
    */
