@@ -601,14 +601,17 @@ describe('.toEqual()', () => {
     [
       Object.assign(Array(1234567890), {123: 1}),
       Object.assign(Array(1234567890), {123: 2}), // issue 11055: should skip holes
+      true, // disable snapshots
     ],
     [
       Object.assign(Array(1234567890), {123: 1}),
       Object.assign(Array(1234567890), {124: 1}), // issue 11055: but check same keys
+      true, // disable snapshots
     ],
     [
       Object.assign(Array(1234567890), {123: 1}),
       Object.assign(Array(1234567890), {123: 1, 124: 1}), // issue 11055: and number of keys
+      true, // disable snapshots
     ],
     [
       Object.assign([], {4294967295: 1}),
@@ -628,11 +631,13 @@ describe('.toEqual()', () => {
       Object.assign([], {[Symbol()]: 1}),
       Object.assign([], {[Symbol()]: 1}), // issue 11056: also check symbols
     ],
-  ].forEach(([a, b]) => {
+  ].forEach(([a, b, noSnapshot]) => {
     test(`{pass: false} expect(${stringify(a)}).toEqual(${stringify(
       b,
     )})`, () => {
-      expect(() => jestExpect(a).toEqual(b)).toThrowErrorMatchingSnapshot();
+      if (!noSnapshot) {
+        expect(() => jestExpect(a).toEqual(b)).toThrowErrorMatchingSnapshot();
+      }
       jestExpect(a).not.toEqual(b);
     });
   });
@@ -827,13 +832,18 @@ describe('.toEqual()', () => {
     [
       Object.assign(Array(1234567890), {123: 1}),
       Object.assign(Array(1234567890), {123: 1}), // issue 11055: should skip holes
+      true, // disable snapshots
     ],
-  ].forEach(([a, b]) => {
+  ].forEach(([a, b, noSnapshot]) => {
     test(`{pass: true} expect(${stringify(a)}).not.toEqual(${stringify(
       b,
     )})`, () => {
       jestExpect(a).toEqual(b);
-      expect(() => jestExpect(a).not.toEqual(b)).toThrowErrorMatchingSnapshot();
+      if (!noSnapshot) {
+        expect(() =>
+          jestExpect(a).not.toEqual(b),
+        ).toThrowErrorMatchingSnapshot();
+      }
     });
   });
 
