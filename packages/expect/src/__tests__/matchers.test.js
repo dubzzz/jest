@@ -599,6 +599,18 @@ describe('.toEqual()', () => {
       },
     ],
     [
+      Object.assign(Array(1234567890), {123: 1}),
+      Object.assign(Array(1234567890), {123: 2}), // issue 11055: should skip holes
+    ],
+    [
+      Object.assign(Array(1234567890), {123: 1}),
+      Object.assign(Array(1234567890), {124: 1}), // issue 11055: but check same keys
+    ],
+    [
+      Object.assign(Array(1234567890), {123: 1}),
+      Object.assign(Array(1234567890), {123: 1, 124: 1}), // issue 11055: and number of keys
+    ],
+    [
       Object.assign([], {4294967295: 1}),
       Object.assign([], {4294967295: 2}), // issue 11056
     ],
@@ -811,6 +823,10 @@ describe('.toEqual()', () => {
         [Symbol.for('foo')]: jestExpect.any(Number),
         [Symbol.for('bar')]: 2,
       },
+    ],
+    [
+      Object.assign(Array(1234567890), {123: 1}),
+      Object.assign(Array(1234567890), {123: 1}), // issue 11055: should skip holes
     ],
   ].forEach(([a, b]) => {
     test(`{pass: true} expect(${stringify(a)}).not.toEqual(${stringify(
