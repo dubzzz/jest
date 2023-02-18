@@ -327,7 +327,7 @@ export const formatStackTrace = (
 };
 
 type FailedResults = Array<{
-  content: string;
+  error: unknown;
   result: TestResult.AssertionResult;
 }>;
 
@@ -339,8 +339,8 @@ export const formatResultsErrors = (
 ): string | null => {
   const failedResults: FailedResults = testResults.reduce<FailedResults>(
     (errors, result) => {
-      result.failureMessages.forEach(item => {
-        errors.push({content: checkForCommonEnvironmentErrors(item), result});
+      result.failureDetails.forEach(item => {
+        errors.push({error: item, result});
       });
       return errors;
     },
@@ -352,15 +352,22 @@ export const formatResultsErrors = (
   }
 
   return failedResults
-    .map(({result, content}) => {
-      let {message, stack} = separateMessageFromStack(content);
-      stack = options.noStackTrace
-        ? ''
-        : `${STACK_TRACE_COLOR(
-            formatStackTrace(stack, config, options, testPath),
-          )}\n`;
+    .map(({result, error}) => {
+      function formatOne(error: Error, noIndent: boolean): string {
+        let {message, stack, cause} = error;
+        stack = options.noStackTrace
+          ? ''
+          : `${STACK_TRACE_COLOR(
+              formatStackTrace(stack || '', config, options, testPath),
+            )}\n`;
 
-      message = indentAllLines(message);
+        const newMessage = noIndent ? message : indentAllLines(message);
+
+        if (cause !== undefined) {
+          return `${newMessage}\n${stack}\nCause: ${formatOne(cause, true)}`;
+        }
+        return `${newMessage}\n${stack}`;
+      }
 
       const title = `${chalk.bold.red(
         TITLE_INDENT +
@@ -370,7 +377,7 @@ export const formatResultsErrors = (
           result.title,
       )}\n`;
 
-      return `${title}\n${message}\n${stack}`;
+      return `${title}\n${formatOne(error as Error, false)}`;
     })
     .join('\n');
 };
